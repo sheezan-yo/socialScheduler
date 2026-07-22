@@ -18,7 +18,7 @@ await connectDB();
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://social-scheduler-sage.vercel.app/"
+        "https://social-scheduler-sage.vercel.app"
     ],
     credentials: true
 }));
