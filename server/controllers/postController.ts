@@ -56,7 +56,7 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
         const ai = new GoogleGenAI({ apiKey });
         // Generate text
         const textResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-3.5-flash",
             contents: `Generate  social media post based on this prompt: "${prompt}".
             Tone: ${tone}.
             Include relevant hashtags.
@@ -228,7 +228,7 @@ export const schedulePost = async (req: AuthRequest, res: Response): Promise<voi
         const post = await Post.create({
             user: req.user._id,
             content,
-            platform: parsedPlatforms,
+            platforms: parsedPlatforms,
             mediaUrl,
             mediaType,
             scheduledFor,
