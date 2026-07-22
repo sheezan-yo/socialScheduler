@@ -14,8 +14,8 @@ export const initScheduler = () => {
                 try {
                     const accounts = await Account.find({
                         user: post.user,
-                        platforms: { $in: post.platform },
-                        status: "connnected",
+                        platform: { $in: post.platforms },
+                        status: "connected",
                         zernioAccountId: { $exists: true }
                     })
 
@@ -24,7 +24,7 @@ export const initScheduler = () => {
                         continue;
                     }
                     const zernioPlatforms = accounts.map((acc) => ({
-                        tform: acc.platform as any,
+                        platform: acc.platform as any,
                         accountId: acc.zernioAccountId!
                     }))
 

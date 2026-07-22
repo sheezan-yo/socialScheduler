@@ -21,7 +21,7 @@ const accountSchema = new mongoose.Schema({
     tokenExpiresAt: { type: Date },
     status: {
         type: String,
-        enum: ["connnected", "disconnected"],
+        enum: ["connected", "disconnected"],
         default: "connected"
     },
     avatarUrl: { type: String }

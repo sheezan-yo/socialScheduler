@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { dummyPostsData, PLATFORMS } from "../assets/assets";
+import { PLATFORMS } from "../assets/assets";
 import {
   ArrowRightIcon,
   CalendarDaysIcon,
@@ -10,6 +10,8 @@ import {
   SendIcon,
   XIcon,
 } from "lucide-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Scheduler = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -21,12 +23,17 @@ const Scheduler = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchPosts = async () => {
-    setPosts(dummyPostsData);
+    try {
+      const { data } = await api.get("/api/posts");
+      setPosts(data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+    }
   };
 
   useEffect(() => {
     (async () => await fetchPosts())();
-    const interval = setInterval(async () => await fetchPosts(), 1000);
+    const interval = setInterval(async () => await fetchPosts(), 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -40,11 +47,49 @@ const Scheduler = () => {
 
   const handleSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedPlatforms.length === 0) {
+      toast.error("Select at least one platform");
+      return;
+    }
+    if (!scheduledDate || !scheduledTime) {
+      toast.error("Select date and time");
+      return;
+    }
+    if (selectedPlatforms.includes("instagram") && !mediaFile) {
+      toast.error("Instagram requires an image or video");
+      return;
+    }
+
+    const scheduledFor = new Date(
+      `${scheduledDate}T${scheduledTime}`,
+    ).toISOString();
+    const formData = new FormData();
+    formData.append("content", content);
+    formData.append("scheduledFor", scheduledFor);
+    formData.append("status", "scheduled");
+    formData.append("platforms", JSON.stringify(selectedPlatforms));
+    if (mediaFile) {
+      formData.append("media", mediaFile);
+    }
+
     setLoading(true);
-    setTimeout(() => {
+    try {
+      // Post validation failed: platform: Cast to string failed for value "[ 'linkedin' ]" (type Array) at path "platform"
+      await api.post("/api/posts", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success("Post scheduled!");
+      setContent("");
+      setScheduledDate("");
+      setScheduledTime("");
+      setSelectedPlatforms([]);
+      setMediaFile(null);
+      fetchPosts();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+    } finally {
       setLoading(false);
-      setPosts((prev) => [...prev, dummyPostsData[0]]);
-    }, 1000);
+    }
   };
 
   return (
@@ -298,7 +343,9 @@ const Scheduler = () => {
                       <span className="text-xs text-slate-400">
                         {new Date(post.updatedAt).toLocaleString()}
                       </span>
-                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full">Published</span>
+                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full">
+                        Published
+                      </span>
                     </div>
                   </div>
                   <p className="text-sm text-slate-500 line-clamp-2 max-w-4/5">
