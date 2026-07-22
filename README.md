@@ -6,6 +6,11 @@ The application integrates with **Zernio** for social media publishing and uses 
 
 ---
 
+## Live Demo:
+https://social-scheduler-sage.vercel.app/
+
+---
+
 ## ✨ Features
 
 * 📅 Schedule posts for future publishing
